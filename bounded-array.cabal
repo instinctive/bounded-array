@@ -1,0 +1,9 @@
+cabal-version: 3.0
+version: 1.0.0.0
+name: bounded-array
+
+library
+  default-language: GHC2021
+  ghc-options: -O2
+  exposed-modules: Data.Array.Bounded
+  build-depends: base, array, lens
