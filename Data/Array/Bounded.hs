@@ -4,15 +4,17 @@ module Data.Array.Bounded
     ( BoundedArray
     , (!)
     , (//)
+    , listArray
     , listArrayFill
     , elt
     ) where
 
 import Control.Lens
 import GHC.Arr        ( unsafeArray, unsafeAt, unsafeIndex, unsafeReplace )
-import Data.Array     ( Array, Ix, inRange, range, listArray )
+import Data.Array     ( Array, Ix, inRange, range )
 import Data.Bifunctor ( first )
 import Data.Functor   ( (<&>) )
+import qualified Data.Array as A
 
 newtype BoundedIndex i = BoundedIndex i
     deriving ( Eq, Ord, Bounded, Enum, Show )
@@ -38,8 +40,11 @@ BoundedArray a ! i = a `unsafeAt` fromEnum i
 BoundedArray a // ies =
     BoundedArray . unsafeReplace a $ fmap (first fromEnum) ies
 
+listArray :: ( Bounded i, Enum i, Ord i ) => [e] -> BoundedArray i e
+listArray = listArrayFill undefined
+
 listArrayFill :: ( Bounded i, Enum i, Ord i ) => e -> [e] -> BoundedArray i e
-listArrayFill e = BoundedArray . listArray ( minBound, maxBound ) . (++ repeat e)
+listArrayFill e = BoundedArray . A.listArray ( minBound, maxBound ) . (++ repeat e)
 
 elt :: ( Enum i, Ord i ) => Functor f => i -> (a -> f a) -> BoundedArray i a -> f (BoundedArray i a)
 elt i f a = f (a!i) <&> \e -> a // [(i,e)]
